@@ -28,6 +28,18 @@ urlpatterns = [
     path('menu/',MenuView,name="Menu"),
     path('book_table',BookTableView,name="Book_table"),
     path('feedback/',FeedbackView,name="Feedback"),
+    path('register/', register, name='register'),
+    path('login/', login_view, name='login'),
+    path('add_to_cart/<int:item_id>/', add_to_cart, name='add_to_cart'),
+    path('cart/', cart_view, name='Cart'),
+    path('remove_from_cart/<int:item_id>/', remove_from_cart, name='remove_from_cart'),
+    path('update_cart/<int:item_id>/<str:action>/', update_cart, name='update_cart'),
+    path('checkout/', checkout, name='checkout'),
+    path('payment/<int:order_id>/', payment_view, name='payment_view'),
+    path('profile/', profile_view, name='profile'),
+    path('item/<int:item_id>/', item_detail, name='item_detail'),
+    path('wishlist/<int:item_id>/', toggle_wishlist, name='toggle_wishlist'),
+    path('logout/', logout_view, name='logout'),
 
 ] 
 if settings.DEBUG:

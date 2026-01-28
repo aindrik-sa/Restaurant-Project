@@ -75,11 +75,20 @@
               </li>
             </ul>
             <div class="user_option">
-              {% comment "" %}
-              <a href="" class="user_link">
-                <i class="fa fa-user" aria-hidden="true"></i>
+
+              {% if user.is_authenticated %}
+              <a href="{% url 'profile' %}" class="navbar-text mr-3 text-white" style="text-decoration: none;">
+                Hello, {{ user.username }}
               </a>
-              <a class="cart_link" href="#">
+              <a href="{% url 'logout' %}" class="user_link">
+                <i class="fa fa-sign-out" aria-hidden="true"></i> Logout
+              </a>
+              {% else %}
+              <a href="{% url 'login' %}" class="user_link">
+                <i class="fa fa-user" aria-hidden="true"></i> Login
+              </a>
+              {% endif %}
+              <a class="cart_link" href="{% url 'Cart' %}">
                 <svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg"
                   xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 456.029 456.029"
                   style="enable-background:new 0 0 456.029 456.029;" xml:space="preserve">
@@ -135,12 +144,14 @@
                   </g>
                 </svg>
               </a>
-              <form class="form-inline">
+              <form class="form-inline" action="{% url 'Menu' %}" method="GET">
                 <button class="btn  my-2 my-sm-0 nav_search-btn" type="submit">
                   <i class="fa fa-search" aria-hidden="true"></i>
                 </button>
+                <input type="text" name="q" class="form-control" placeholder="Search..."
+                  value="{{ request.GET.q|default:'' }}">
               </form>
-              {% endcomment %}
+
               <a href="/admin" class="order_online">
                 Admin login
               </a>

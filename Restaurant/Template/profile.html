@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block main %}
+<section class="food_section layout_padding">
+    <div class="container">
+        <div class="heading_container heading_center">
+            <h2>My Profile</h2>
+        </div>
+
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <i class="fa fa-user-circle fa-5x mb-3 text-primary"></i>
+                        <h4>{{ user.username }}</h4>
+                        <p>{{ user.email }}</p>
+                        <p>Member since: {{ user.date_joined|date:"M d, Y" }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-8">
+                <h3>Order History</h3>
+                {% if orders %}
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Date</th>
+                                <th>Total</th>
+                                <th>Status</th>
+                                <th>Details</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for order in orders %}
+                            <tr>
+                                <td>#{{ order.id }}</td>
+                                <td>{{ order.created_at|date:"M d, Y" }}</td>
+                                <td>${{ order.total_amount }}</td>
+                                <td>
+                                    <span
+                                        class="badge badge-{% if order.status == 'Completed' %}success{% elif order.status == 'Pending' %}warning{% else %}danger{% endif %}">
+                                        {{ order.status }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <ul>
+                                        {% for item in order.items.all %}
+                                        <li>{{ item.quantity }} x {{ item.item.Item_name }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p>No past orders found.</p>
+                <a href="{% url 'Menu' %}" class="btn btn-primary">Order Now</a>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="row mt-5">
+            <div class="col-md-12">
+                <h3>My Wishlist</h3>
+                <hr>
+                {% if user.wishlist_set.all %}
+                <div class="row">
+                    {% for wishItem in user.wishlist_set.all %}
+                    <div class="col-md-3 mb-4">
+                        <div class="card h-100">
+                            <img src="{{ wishItem.item.Image.url }}" class="card-img-top"
+                                alt="{{ wishItem.item.Item_name }}" style="height: 150px; object-fit: cover;">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ wishItem.item.Item_name }}</h5>
+                                <p class="card-text">${{ wishItem.item.Price }}</p>
+                                <a href="{% url 'item_detail' wishItem.item.id %}"
+                                    class="btn btn-primary btn-sm btn-block">View Details</a>
+                                <a href="{% url 'toggle_wishlist' wishItem.item.id %}"
+                                    class="btn btn-danger btn-sm btn-block">Remove</a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p>Your wishlist is empty.</p>
+                {% endif %}
+            </div>
+        </div>
+
+    </div>
+</section>
+{% endblock main %}

@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block main %}
+<section class="book_section layout_padding">
+    <div class="container">
+        <div class="heading_container">
+            <h2>Payment</h2>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        Payment for Order #{{ order.id }}
+                    </div>
+                    <div class="card-body">
+                        <h4 class="card-title text-center">Total Amount: ${{ order.total_amount }}</h4>
+                        <hr>
+                        <!-- Razorpay Payment Button -->
+                        <form method="POST">
+                            {% csrf_token %}
+                            <script src="https://checkout.razorpay.com/v1/checkout.js"
+                                data-key="{{ razorpay_merchant_key }}" data-amount="{{ razorpay_amount }}"
+                                data-currency="{{ currency }}" data-order_id="{{ razorpay_order_id }}"
+                                data-buttontext="Pay with Razorpay" data-name="Hunger Lounge"
+                                data-description="Order #{{ order.id }}" data-image="{% static 'images/favicon.png' %}"
+                                data-prefill.name="{{ order.name }}" data-prefill.email="{{ order.email }}"
+                                data-prefill.contact="{{ order.phone }}" data-theme.color="#ffbe33">
+                                </script>
+                            <input type="hidden" custom="Hidden Element" name="hidden">
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock main %}

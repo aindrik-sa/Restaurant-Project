@@ -13,40 +13,32 @@
     <div class="row">
       <div class="col-md-6">
         <div class="form_container">
-          <form action="">
+          <form action="" method="POST">
+            {% csrf_token %}
+            {% if messages %}
+            <div class="alert alert-success">
+              {% for message in messages %}
+              {{ message }}
+              {% endfor %}
+            </div>
+            {% endif %}
             <div>
-              <input type="text" class="form-control" placeholder="Your Name" />
+              {{ form.Name }}
             </div>
             <div>
-              <input type="text" class="form-control" placeholder="Phone Number" />
+              {{ form.Phone_number }}
             </div>
             <div>
-              <input type="email" class="form-control" placeholder="Your Email" />
+              {{ form.Email }}
             </div>
             <div>
-              <select class="form-control nice-select wide">
-                <option value="" disabled selected>
-                  How many persons?
-                </option>
-                <option value="">
-                  2
-                </option>
-                <option value="">
-                  3
-                </option>
-                <option value="">
-                  4
-                </option>
-                <option value="">
-                  5
-                </option>
-              </select>
+              {{ form.Total_person }}
             </div>
             <div>
-              <input type="date" class="form-control">
+              {{ form.Booking_date }}
             </div>
             <div class="btn_box">
-              <button>
+              <button type="submit">
                 Book Now
               </button>
             </div>
