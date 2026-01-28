@@ -68,7 +68,7 @@
                 <a class="nav-link" href="{% url 'About' %}">About</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="{% url 'Book_table' %}">Book Table</a>
+                <a class="nav-link" href="{% url 'Book_table' %}"> BookTable</a>
               </li>
               <li class="nav-item">
                 <a class="nav-link" href="{% url 'Feedback' %}">Feedback</a>
@@ -84,8 +84,8 @@
                 <i class="fa fa-sign-out" aria-hidden="true"></i> Logout
               </a>
               {% else %}
-              <a href="{% url 'login' %}" class="user_link">
-                <i class="fa fa-user" aria-hidden="true"></i> Login
+              <a href="{% url 'login' %}" class="user_link" style="display: flex; align-items: center;">
+                <i class="fa fa-user" aria-hidden="true" style="margin-right: 9px;"></i>Login
               </a>
               {% endif %}
               <a class="cart_link" href="{% url 'Cart' %}">
