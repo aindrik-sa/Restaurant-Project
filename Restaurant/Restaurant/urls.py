@@ -40,6 +40,25 @@ urlpatterns = [
     path('item/<int:item_id>/', item_detail, name='item_detail'),
     path('wishlist/<int:item_id>/', toggle_wishlist, name='toggle_wishlist'),
     path('logout/', logout_view, name='logout'),
+    
+    # API endpoints for AJAX
+    path('api/cart/count/', api_get_cart_count, name='api_cart_count'),
+    path('api/cart/add/<int:item_id>/', api_add_to_cart, name='api_add_to_cart'),
+    path('api/wishlist/toggle/<int:item_id>/', api_toggle_wishlist, name='api_toggle_wishlist'),
+    
+    # Feature 1: Order Details
+    path('order/<int:order_id>/', order_detail, name='order_detail'),
+    
+    # Feature 4: Coupons
+    path('apply-coupon/', apply_coupon, name='apply_coupon'),
+    
+    # Feature 5: Staff Dashboard
+    path('staff/dashboard/', staff_dashboard, name='staff_dashboard'),
+    path('staff/order/<int:order_id>/status/', update_order_status, name='update_order_status'),
+    
+    # Feature 6: Analytics
+    path('staff/analytics/', sales_analytics, name='sales_analytics'),
+    path('api/sales-data/', api_sales_data, name='api_sales_data'),
 
 ] 
 if settings.DEBUG:

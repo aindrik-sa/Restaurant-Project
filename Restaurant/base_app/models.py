@@ -34,14 +34,26 @@ class Feedback(models.Model):
         return self.User_name
 
 class BookTable(models.Model):
+    TIME_SLOTS = [
+        ('12:00', '12:00 PM'),
+        ('13:00', '1:00 PM'),
+        ('14:00', '2:00 PM'),
+        ('18:00', '6:00 PM'),
+        ('19:00', '7:00 PM'),
+        ('20:00', '8:00 PM'),
+        ('21:00', '9:00 PM'),
+    ]
+    MAX_TABLES_PER_SLOT = 10  # Maximum bookings per time slot
+    
     Name=models.CharField( max_length=15)
     Phone_number=models.CharField(max_length=15)
     Email=models.EmailField()
     Total_person=models.IntegerField()
     Booking_date=models.DateField()
+    Booking_time=models.CharField(max_length=10, choices=TIME_SLOTS, default='19:00')
 
     def __str__(self):
-        return self.Name
+        return f"{self.Name} - {self.Booking_date} at {self.Booking_time}"
 
 class Cart(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
@@ -109,3 +121,25 @@ class Wishlist(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.item.Item_name}"
+
+# Coupon Model for Discounts
+class Coupon(models.Model):
+    code = models.CharField(max_length=50, unique=True)
+    discount_percent = models.IntegerField(default=10)  # Percentage discount
+    valid_from = models.DateField()
+    valid_until = models.DateField()
+    is_active = models.BooleanField(default=True)
+    usage_limit = models.IntegerField(default=100)  # Max times coupon can be used
+    times_used = models.IntegerField(default=0)
+
+    def __str__(self):
+        return f"{self.code} - {self.discount_percent}% off"
+
+    def is_valid(self):
+        from datetime import date
+        today = date.today()
+        return (
+            self.is_active and
+            self.valid_from <= today <= self.valid_until and
+            self.times_used < self.usage_limit
+        )

@@ -78,6 +78,38 @@
                 {% endif %}
             </div>
         </div>
+
+        <!-- Feature 2: Related Products -->
+        {% if related_items %}
+        <div class="row mt-5">
+            <div class="col-md-12">
+                <h3>You Might Also Like</h3>
+                <hr>
+                <div class="row">
+                    {% for item in related_items %}
+                    <div class="col-md-3 mb-4">
+                        <div class="card h-100"
+                            style="border-radius: 10px; overflow: hidden; transition: transform 0.3s;">
+                            <a href="{% url 'item_detail' item.id %}">
+                                <img src="{{ item.Image.url }}" class="card-img-top" alt="{{ item.Item_name }}"
+                                    style="height: 150px; object-fit: cover;">
+                            </a>
+                            <div class="card-body">
+                                <h5 class="card-title">{{ item.Item_name }}</h5>
+                                <p class="card-text text-primary font-weight-bold">${{ item.Price }}</p>
+                                <a href="javascript:void(0)" class="btn btn-warning btn-sm text-white ajax-add-cart"
+                                    data-item-id="{{ item.id }}">
+                                    <i class="fa fa-shopping-cart"></i> Add to Cart
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
     </div>
 </section>
 {% endblock main %}

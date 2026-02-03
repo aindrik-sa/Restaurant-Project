@@ -170,7 +170,18 @@ def checkout(request):
         messages.warning(request, "Your cart is empty.")
         return redirect('Menu')
         
-    total = sum(item.total_price() for item in items)
+    subtotal = sum(item.total_price() for item in items)
+    
+    # Feature 4: Coupon handling
+    discount = 0
+    coupon_code = None
+    coupon_discount_percent = request.session.get('coupon_discount', 0)
+    
+    if coupon_discount_percent:
+        coupon_code = request.session.get('coupon_code')
+        discount = (subtotal * coupon_discount_percent) / 100
+    
+    total = subtotal - discount
     
     if request.method == 'POST':
         name = request.POST.get('name')
@@ -195,13 +206,33 @@ def checkout(request):
                 quantity=cart_item.quantity
             )
         
+        # Update coupon usage if applied
+        coupon_id = request.session.get('coupon_id')
+        if coupon_id:
+            try:
+                from .models import Coupon
+                coupon = Coupon.objects.get(id=coupon_id)
+                coupon.times_used += 1
+                coupon.save()
+            except:
+                pass
+            # Clear coupon from session
+            del request.session['coupon_id']
+            del request.session['coupon_code']
+            del request.session['coupon_discount']
+        
         cart.items.all().delete() 
         
         return redirect('payment_view', order_id=order.id)
         
-    return render(request, 'checkout.html', {'cart_items': items, 'total': total})
-
-    return render(request, 'checkout.html', {'cart_items': items, 'total': total})
+    return render(request, 'checkout.html', {
+        'cart_items': items, 
+        'subtotal': subtotal,
+        'discount': discount,
+        'total': total,
+        'coupon_code': coupon_code,
+        'coupon_discount_percent': coupon_discount_percent
+    })
 
 import razorpay
 
@@ -286,6 +317,9 @@ def item_detail(request, item_id):
     item = get_object_or_404(Items, id=item_id)
     reviews = item.reviews.all().order_by('-created_at')
     
+    # Feature 2: Related Products - Get items from same category
+    related_items = Items.objects.filter(Category=item.Category).exclude(id=item.id)[:4]
+    
     in_wishlist = False
     if request.user.is_authenticated:
         in_wishlist = Wishlist.objects.filter(user=request.user, item=item).exists()
@@ -306,7 +340,8 @@ def item_detail(request, item_id):
         'item': item,
         'reviews': reviews,
         'form': form,
-        'in_wishlist': in_wishlist
+        'in_wishlist': in_wishlist,
+        'related_items': related_items
     })
 
 def toggle_wishlist(request, item_id):
@@ -324,3 +359,194 @@ def toggle_wishlist(request, item_id):
         messages.info(request, f"Removed {item.Item_name} from wishlist.")
         
     return redirect('item_detail', item_id=item.id)
+
+# =============================================
+# AJAX API Views for Cart & Wishlist
+# =============================================
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
+
+def api_get_cart_count(request):
+    """Return the total number of items in the cart."""
+    cart = _get_cart(request)
+    count = sum(item.quantity for item in cart.items.all())
+    return JsonResponse({'cart_count': count})
+
+@require_POST
+def api_add_to_cart(request, item_id):
+    """Add an item to cart via AJAX and return JSON response."""
+    try:
+        item = get_object_or_404(Items, id=item_id)
+        cart = _get_cart(request)
+        cart_item, created = CartItem.objects.get_or_create(cart=cart, item=item)
+        if not created:
+            cart_item.quantity += 1
+            cart_item.save()
+        
+        # Get updated cart count
+        cart_count = sum(ci.quantity for ci in cart.items.all())
+        
+        return JsonResponse({
+            'status': 'success',
+            'message': f'{item.Item_name} added to cart!',
+            'cart_count': cart_count
+        })
+    except Exception as e:
+        return JsonResponse({
+            'status': 'error',
+            'message': str(e)
+        }, status=400)
+
+@require_POST
+def api_toggle_wishlist(request, item_id):
+    """Toggle wishlist status via AJAX and return JSON response."""
+    if not request.user.is_authenticated:
+        return JsonResponse({
+            'status': 'error',
+            'message': 'Please login to manage wishlist.'
+        }, status=401)
+    
+    try:
+        item = get_object_or_404(Items, id=item_id)
+        wishlist_item, created = Wishlist.objects.get_or_create(user=request.user, item=item)
+        
+        if created:
+            return JsonResponse({
+                'status': 'success',
+                'message': f'Added {item.Item_name} to wishlist!',
+                'in_wishlist': True
+            })
+        else:
+            wishlist_item.delete()
+            return JsonResponse({
+                'status': 'success',
+                'message': f'Removed {item.Item_name} from wishlist.',
+                'in_wishlist': False
+            })
+    except Exception as e:
+        return JsonResponse({
+            'status': 'error',
+            'message': str(e)
+        }, status=400)
+
+# =============================================
+# Feature 1: Order Details Page
+# =============================================
+def order_detail(request, order_id):
+    order = get_object_or_404(Order, id=order_id)
+    
+    # Ensure user can only view their own orders (unless staff)
+    if not request.user.is_staff and order.user != request.user:
+        messages.error(request, "You don't have permission to view this order.")
+        return redirect('profile')
+    
+    return render(request, 'order_detail.html', {'order': order})
+
+# =============================================
+# Feature 4: Coupons & Discounts
+# =============================================
+from .models import Coupon
+
+def apply_coupon(request):
+    if request.method == 'POST':
+        code = request.POST.get('coupon_code', '').strip().upper()
+        
+        try:
+            coupon = Coupon.objects.get(code__iexact=code)
+            if coupon.is_valid():
+                request.session['coupon_id'] = coupon.id
+                request.session['coupon_code'] = coupon.code
+                request.session['coupon_discount'] = coupon.discount_percent
+                messages.success(request, f"Coupon '{coupon.code}' applied! {coupon.discount_percent}% discount.")
+            else:
+                messages.error(request, "This coupon is expired or has reached its usage limit.")
+        except Coupon.DoesNotExist:
+            messages.error(request, "Invalid coupon code.")
+        
+        return redirect('checkout')
+    
+    return redirect('checkout')
+
+# =============================================
+# Feature 5: Staff Order Dashboard
+# =============================================
+from django.contrib.admin.views.decorators import staff_member_required
+
+@staff_member_required
+def staff_dashboard(request):
+    pending_orders = Order.objects.filter(status='Pending').order_by('-created_at')
+    completed_orders = Order.objects.filter(status='Completed').order_by('-created_at')[:10]
+    cancelled_orders = Order.objects.filter(status='Cancelled').order_by('-created_at')[:10]
+    
+    return render(request, 'staff_dashboard.html', {
+        'pending_orders': pending_orders,
+        'completed_orders': completed_orders,
+        'cancelled_orders': cancelled_orders,
+    })
+
+@staff_member_required
+@require_POST
+def update_order_status(request, order_id):
+    order = get_object_or_404(Order, id=order_id)
+    new_status = request.POST.get('status')
+    
+    if new_status in ['Pending', 'Completed', 'Cancelled']:
+        order.status = new_status
+        order.save()
+        return JsonResponse({
+            'status': 'success',
+            'message': f'Order #{order.id} updated to {new_status}',
+            'new_status': new_status
+        })
+    
+    return JsonResponse({'status': 'error', 'message': 'Invalid status'}, status=400)
+
+# =============================================
+# Feature 6: Sales Analytics
+# =============================================
+from django.db.models import Sum, Count
+from django.db.models.functions import TruncDate
+from datetime import timedelta
+
+@staff_member_required
+def sales_analytics(request):
+    return render(request, 'analytics.html')
+
+@staff_member_required
+def api_sales_data(request):
+    from datetime import date
+    today = date.today()
+    
+    # Daily sales for the last 7 days
+    last_7_days = today - timedelta(days=6)
+    daily_sales = Order.objects.filter(
+        created_at__date__gte=last_7_days,
+        status='Completed'
+    ).annotate(
+        day=TruncDate('created_at')
+    ).values('day').annotate(
+        total=Sum('total_amount'),
+        count=Count('id')
+    ).order_by('day')
+    
+    # Top selling items
+    top_items = OrderItem.objects.filter(
+        order__status='Completed'
+    ).values('item__Item_name').annotate(
+        total_sold=Sum('quantity')
+    ).order_by('-total_sold')[:5]
+    
+    # Summary stats
+    total_revenue = Order.objects.filter(status='Completed').aggregate(Sum('total_amount'))['total_amount__sum'] or 0
+    total_orders = Order.objects.filter(status='Completed').count()
+    avg_order_value = total_revenue / total_orders if total_orders > 0 else 0
+    
+    return JsonResponse({
+        'daily_sales': list(daily_sales),
+        'top_items': list(top_items),
+        'summary': {
+            'total_revenue': float(total_revenue),
+            'total_orders': total_orders,
+            'avg_order_value': float(avg_order_value)
+        }
+    })

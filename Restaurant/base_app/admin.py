@@ -25,3 +25,13 @@ admin.site.register(Order, OrderAdmin)
 admin.site.register(Review)
 admin.site.register(Wishlist)
 
+# Coupon Admin
+from base_app.models import Coupon
+
+class CouponAdmin(admin.ModelAdmin):
+    list_display = ('code', 'discount_percent', 'valid_from', 'valid_until', 'is_active', 'times_used', 'usage_limit')
+    list_filter = ('is_active', 'valid_from', 'valid_until')
+    search_fields = ('code',)
+    list_editable = ('is_active',)
+
+admin.site.register(Coupon, CouponAdmin)
