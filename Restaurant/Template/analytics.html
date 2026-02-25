@@ -1,0 +1,197 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block class %}class="sub_page" {% endblock class %}
+{% block main %}
+<style>
+    .stat-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 15px;
+        padding: 25px;
+        color: white;
+        margin-bottom: 20px;
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    }
+
+    .stat-card.revenue {
+        background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        box-shadow: 0 5px 15px rgba(17, 153, 142, 0.4);
+    }
+
+    .stat-card.orders {
+        background: linear-gradient(135deg, #fc4a1a 0%, #f7b733 100%);
+        box-shadow: 0 5px 15px rgba(252, 74, 26, 0.4);
+    }
+
+    .stat-card.avg {
+        background: linear-gradient(135deg, #4568dc 0%, #b06ab3 100%);
+        box-shadow: 0 5px 15px rgba(69, 104, 220, 0.4);
+    }
+
+    .stat-card h3 {
+        font-size: 2.5rem;
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+
+    .stat-card p {
+        margin: 0;
+        opacity: 0.9;
+        font-size: 0.9rem;
+    }
+
+    .chart-container {
+        background: white;
+        border-radius: 15px;
+        padding: 20px;
+        box-shadow: 0 2px 15px rgba(0, 0, 0, 0.08);
+        margin-bottom: 20px;
+    }
+
+    .chart-container h5 {
+        margin-bottom: 20px;
+        color: #333;
+    }
+</style>
+
+<section class="food_section layout_padding">
+    <div class="container">
+        <div class="heading_container heading_center">
+            <h2>Sales Analytics</h2>
+            <p class="text-muted">Track your restaurant's performance</p>
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-12">
+                <a href="{% url 'staff_dashboard' %}" class="btn btn-outline-primary">
+                    <i class="fa fa-arrow-left"></i> Back to Dashboard
+                </a>
+            </div>
+        </div>
+
+        <!-- Summary Cards -->
+        <div class="row" id="summary-cards">
+            <div class="col-md-4">
+                <div class="stat-card revenue">
+                    <h3 id="total-revenue">$0.00</h3>
+                    <p><i class="fa fa-money"></i> Total Revenue</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stat-card orders">
+                    <h3 id="total-orders">0</h3>
+                    <p><i class="fa fa-shopping-cart"></i> Completed Orders</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stat-card avg">
+                    <h3 id="avg-order">$0.00</h3>
+                    <p><i class="fa fa-calculator"></i> Average Order Value</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts -->
+        <div class="row">
+            <div class="col-md-8">
+                <div class="chart-container">
+                    <h5><i class="fa fa-line-chart"></i> Daily Sales (Last 7 Days)</h5>
+                    <canvas id="salesChart" height="300"></canvas>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="chart-container">
+                    <h5><i class="fa fa-trophy"></i> Top Selling Items</h5>
+                    <canvas id="topItemsChart" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        fetch('/api/sales-data/')
+            .then(response => response.json())
+            .then(data => {
+                // Update summary cards
+                document.getElementById('total-revenue').textContent = '$' + data.summary.total_revenue.toFixed(2);
+                document.getElementById('total-orders').textContent = data.summary.total_orders;
+                document.getElementById('avg-order').textContent = '$' + data.summary.avg_order_value.toFixed(2);
+
+                // Daily Sales Chart
+                const salesCtx = document.getElementById('salesChart').getContext('2d');
+                const labels = data.daily_sales.map(d => {
+                    const date = new Date(d.day);
+                    return date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+                });
+                const salesValues = data.daily_sales.map(d => parseFloat(d.total));
+
+                new Chart(salesCtx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Sales ($)',
+                            data: salesValues,
+                            borderColor: 'rgb(75, 192, 192)',
+                            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                            tension: 0.4,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: { display: false }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: function (value) { return '$' + value; }
+                                }
+                            }
+                        }
+                    }
+                });
+
+                // Top Items Chart
+                const topCtx = document.getElementById('topItemsChart').getContext('2d');
+                const itemLabels = data.top_items.map(d => d.item__Item_name);
+                const itemValues = data.top_items.map(d => d.total_sold);
+
+                new Chart(topCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: itemLabels,
+                        datasets: [{
+                            data: itemValues,
+                            backgroundColor: [
+                                '#FF6384',
+                                '#36A2EB',
+                                '#FFCE56',
+                                '#4BC0C0',
+                                '#9966FF'
+                            ]
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                position: 'bottom'
+                            }
+                        }
+                    }
+                });
+            })
+            .catch(err => {
+                console.error('Error loading analytics:', err);
+            });
+    });
+</script>
+{% endblock main %}

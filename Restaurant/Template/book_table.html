@@ -3,6 +3,437 @@
 {% block class %}class="sub_page" {% endblock class %}
 {% block main %}
 <!-- book section -->
+<style>
+  .book_section {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    min-height: 100vh;
+    padding: 80px 0;
+  }
+
+  .book_section .heading_container h2 {
+    color: #fff;
+  }
+
+  /* Map Container */
+  .location-card {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 25px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    height: 100%;
+  }
+
+  .location-title {
+    color: #ffbe33;
+    font-size: 1.3rem;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .location-title i {
+    font-size: 1.5rem;
+  }
+
+  #map {
+    width: 100%;
+    height: 300px;
+    border-radius: 15px;
+    overflow: hidden;
+    border: 2px solid rgba(255, 190, 51, 0.3);
+  }
+
+  .location-info {
+    margin-top: 20px;
+    color: rgba(255, 255, 255, 0.8);
+  }
+
+  .location-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 15px;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+    transition: all 0.3s ease;
+  }
+
+  .location-item:hover {
+    background: rgba(255, 190, 51, 0.1);
+    transform: translateX(5px);
+  }
+
+  .location-item i {
+    color: #ffbe33;
+    font-size: 1.2rem;
+    margin-top: 3px;
+  }
+
+  .location-item-text h5 {
+    color: #fff;
+    font-size: 0.95rem;
+    margin-bottom: 3px;
+  }
+
+  .location-item-text p {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.85rem;
+    margin: 0;
+  }
+
+  /* GPS Buttons */
+  .gps-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+  }
+
+  .btn-gps {
+    flex: 1;
+    padding: 12px 20px;
+    border-radius: 25px;
+    border: none;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+    text-decoration: none;
+  }
+
+  .btn-directions {
+    background: linear-gradient(135deg, #ffbe33, #ff9500);
+    color: #1a1a2e;
+  }
+
+  .btn-directions:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(255, 190, 51, 0.4);
+    color: #1a1a2e;
+    text-decoration: none;
+  }
+
+  .btn-my-location {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  .btn-my-location:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-3px);
+    color: #fff;
+    text-decoration: none;
+  }
+
+  /* Distance Display */
+  .distance-display {
+    margin-top: 15px;
+    padding: 15px;
+    background: rgba(76, 175, 80, 0.1);
+    border: 1px solid rgba(76, 175, 80, 0.3);
+    border-radius: 12px;
+    display: none;
+  }
+
+  .distance-display.show {
+    display: block;
+    animation: fadeIn 0.5s ease;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .distance-display h5 {
+    color: #4CAF50;
+    font-size: 0.9rem;
+    margin-bottom: 8px;
+  }
+
+  .distance-display .distance-value {
+    color: #fff;
+    font-size: 1.5rem;
+    font-weight: bold;
+  }
+
+  .distance-display .travel-time {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.85rem;
+    margin-top: 5px;
+  }
+
+  /* Form Styling */
+  .form_container {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    padding: 30px;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .form_container input,
+  .form_container select {
+    background: rgba(255, 255, 255, 0.1) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    color: #fff !important;
+    border-radius: 10px !important;
+    padding: 12px 15px !important;
+    margin-bottom: 15px;
+  }
+
+  .form_container input::placeholder {
+    color: rgba(255, 255, 255, 0.5) !important;
+  }
+
+  .form_container input:focus,
+  .form_container select:focus {
+    border-color: #ffbe33 !important;
+    box-shadow: 0 0 15px rgba(255, 190, 51, 0.3) !important;
+  }
+
+  .form_container .btn_box button {
+    background: linear-gradient(135deg, #ffbe33, #ff9500);
+    border: none;
+    padding: 12px 40px;
+    border-radius: 25px;
+    color: #1a1a2e;
+    font-weight: 600;
+    transition: all 0.3s ease;
+  }
+
+  .form_container .btn_box button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(255, 190, 51, 0.4);
+  }
+
+  /* Loading Spinner */
+  .loading-spinner {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: #fff;
+    animation: spin 1s ease-in-out infinite;
+  }
+
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  /* Live Tracking Button */
+  .btn-live-tracking {
+    background: rgba(76, 175, 80, 0.2);
+    color: #4CAF50;
+    border: 1px solid rgba(76, 175, 80, 0.4);
+  }
+
+  .btn-live-tracking:hover {
+    background: rgba(76, 175, 80, 0.3);
+    transform: translateY(-3px);
+    color: #4CAF50;
+  }
+
+  .btn-live-tracking.active {
+    background: linear-gradient(135deg, #4CAF50, #45a049);
+    color: #fff;
+    border-color: #4CAF50;
+    animation: pulse-btn 2s infinite;
+  }
+
+  @keyframes pulse-btn {
+
+    0%,
+    100% {
+      box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.4);
+    }
+
+    50% {
+      box-shadow: 0 0 0 10px rgba(76, 175, 80, 0);
+    }
+  }
+
+  /* Live Tracking Status */
+  .live-tracking-status {
+    display: none;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 20px;
+    background: rgba(76, 175, 80, 0.1);
+    border: 1px solid rgba(76, 175, 80, 0.3);
+    border-radius: 12px;
+    margin-top: 15px;
+    color: #4CAF50;
+    font-size: 0.9rem;
+  }
+
+  .live-tracking-status.show {
+    display: flex;
+    animation: fadeIn 0.5s ease;
+  }
+
+  .pulse-dot {
+    width: 12px;
+    height: 12px;
+    background: #4CAF50;
+    border-radius: 50%;
+    animation: pulse-dot 1.5s infinite;
+  }
+
+  @keyframes pulse-dot {
+
+    0%,
+    100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+
+    50% {
+      transform: scale(1.3);
+      opacity: 0.7;
+    }
+  }
+
+  /* User marker with accuracy circle */
+  .accuracy-circle {
+    fill: rgba(66, 133, 244, 0.15);
+    stroke: rgba(66, 133, 244, 0.3);
+    stroke-width: 2;
+  }
+
+  /* Nearby Restaurants Button */
+  .btn-nearby {
+    width: 100%;
+    background: linear-gradient(135deg, #e91e63, #c2185b);
+    color: #fff;
+    border: none;
+  }
+
+  .btn-nearby:hover {
+    background: linear-gradient(135deg, #c2185b, #e91e63);
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(233, 30, 99, 0.4);
+    color: #fff;
+  }
+
+  .btn-nearby.loading {
+    opacity: 0.7;
+    pointer-events: none;
+  }
+
+  /* Nearby Restaurants List */
+  .nearby-restaurants {
+    display: none;
+    margin-top: 15px;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 15px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .nearby-restaurants.show {
+    display: block;
+    animation: fadeIn 0.5s ease;
+  }
+
+  .nearby-restaurants h5 {
+    color: #e91e63;
+    font-size: 1rem;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .nearby-list {
+    max-height: 250px;
+    overflow-y: auto;
+  }
+
+  .nearby-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-left: 3px solid transparent;
+  }
+
+  .nearby-item:hover {
+    background: rgba(233, 30, 99, 0.1);
+    border-left-color: #e91e63;
+    transform: translateX(5px);
+  }
+
+  .nearby-item-icon {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, #e91e63, #c2185b);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .nearby-item-icon i {
+    color: #fff;
+    font-size: 16px;
+  }
+
+  .nearby-item-info h6 {
+    color: #fff;
+    font-size: 0.9rem;
+    margin-bottom: 3px;
+  }
+
+  .nearby-item-info p {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.8rem;
+    margin: 0;
+  }
+
+  .nearby-item-distance {
+    margin-left: auto;
+    color: #ffbe33;
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
+
+  .no-results {
+    text-align: center;
+    color: rgba(255, 255, 255, 0.6);
+    padding: 20px;
+  }
+
+  .no-results i {
+    font-size: 2rem;
+    margin-bottom: 10px;
+    display: block;
+  }
+</style>
+
 <section class="book_section layout_padding">
   <div class="container">
     <div class="heading_container">
@@ -11,51 +442,126 @@
       </h2>
     </div>
     <div class="row">
-      <div class="col-md-6">
+      <div class="col-md-6 mb-4">
         <div class="form_container">
-          <form action="">
+          <form action="" method="POST">
+            {% csrf_token %}
+            {% if messages %}
+            <div class="alert alert-success">
+              {% for message in messages %}
+              {{ message }}
+              {% endfor %}
+            </div>
+            {% endif %}
+            {% if form.non_field_errors %}
+            <div class="alert alert-danger">
+              {% for error in form.non_field_errors %}
+              {{ error }}
+              {% endfor %}
+            </div>
+            {% endif %}
             <div>
-              <input type="text" class="form-control" placeholder="Your Name" />
+              {{ form.Name }}
             </div>
             <div>
-              <input type="text" class="form-control" placeholder="Phone Number" />
+              {{ form.Phone_number }}
             </div>
             <div>
-              <input type="email" class="form-control" placeholder="Your Email" />
+              {{ form.Email }}
             </div>
             <div>
-              <select class="form-control nice-select wide">
-                <option value="" disabled selected>
-                  How many persons?
-                </option>
-                <option value="">
-                  2
-                </option>
-                <option value="">
-                  3
-                </option>
-                <option value="">
-                  4
-                </option>
-                <option value="">
-                  5
-                </option>
-              </select>
+              {{ form.Total_person }}
             </div>
             <div>
-              <input type="date" class="form-control">
+              {{ form.Booking_date }}
             </div>
-            <div class="btn_box">
-              <button>
+            <div>
+              {{ form.Booking_time }}
+              <small class="form-text" style="color: rgba(255,255,255,0.5);">Select your preferred time slot</small>
+            </div>
+            <div class="btn_box mt-3">
+              <button type="submit">
                 Book Now
               </button>
             </div>
           </form>
         </div>
       </div>
+
       <div class="col-md-6">
-        <div class="map_container ">
-          <div id="googleMap"></div>
+        <div class="location-card">
+          <h3 class="location-title">
+            <i class="fa fa-map-marker"></i> Our Location
+          </h3>
+
+          <!-- Map Container -->
+          <div id="map"></div>
+
+          <!-- Location Info -->
+          <div class="location-info">
+            <div class="location-item">
+              <i class="fa fa-building"></i>
+              <div class="location-item-text">
+                <h5>Restaurant Address</h5>
+                <p>123 Food Street, Gourmet Avenue, City - 500001</p>
+              </div>
+            </div>
+            <div class="location-item">
+              <i class="fa fa-clock-o"></i>
+              <div class="location-item-text">
+                <h5>Opening Hours</h5>
+                <p>Mon - Sun: 11:00 AM - 11:00 PM</p>
+              </div>
+            </div>
+            <div class="location-item">
+              <i class="fa fa-phone"></i>
+              <div class="location-item-text">
+                <h5>Contact</h5>
+                <p>+91 98765 43210</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- GPS Buttons -->
+          <div class="gps-buttons">
+            <button class="btn-gps btn-my-location" onclick="getMyLocation()">
+              <i class="fa fa-crosshairs"></i> My Location
+            </button>
+            <button class="btn-gps btn-live-tracking" id="liveTrackBtn" onclick="toggleLiveTracking()">
+              <i class="fa fa-dot-circle-o"></i> <span>Live Track</span>
+            </button>
+            <a href="#" id="directionsBtn" class="btn-gps btn-directions" onclick="openDirections()">
+              <i class="fa fa-location-arrow"></i> Directions
+            </a>
+          </div>
+
+          <!-- Nearby Restaurants Button -->
+          <div class="gps-buttons" style="margin-top: 10px;">
+            <button class="btn-gps btn-nearby" id="nearbyBtn" onclick="findNearbyRestaurants()">
+              <i class="fa fa-cutlery"></i> Find Nearby Restaurants
+            </button>
+          </div>
+
+          <!-- Nearby Restaurants List -->
+          <div class="nearby-restaurants" id="nearbyRestaurants">
+            <h5><i class="fa fa-map-marker"></i> Nearby Restaurants</h5>
+            <div class="nearby-list" id="nearbyList">
+              <!-- Will be populated by JavaScript -->
+            </div>
+          </div>
+
+          <!-- Live Tracking Status -->
+          <div class="live-tracking-status" id="liveTrackingStatus">
+            <div class="pulse-dot"></div>
+            <span>Live tracking active</span>
+          </div>
+
+          <!-- Distance Display -->
+          <div class="distance-display" id="distanceDisplay">
+            <h5><i class="fa fa-road"></i> Distance from your location</h5>
+            <div class="distance-value" id="distanceValue">--</div>
+            <div class="travel-time" id="travelTime">Estimated travel time: --</div>
+          </div>
         </div>
       </div>
     </div>
@@ -63,5 +569,541 @@
 </section>
 <!-- end book section -->
 
+<!-- Leaflet CSS & JS for Map -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+  // Restaurant coordinates (Update these to your actual restaurant location)
+  const restaurantLat = 17.385044;
+  const restaurantLng = 78.486671;
+  const restaurantName = "HungerLounge Restaurant";
+
+  let map;
+  let userMarker;
+  let routeLine;
+  let userLat, userLng;
+
+  // Initialize map
+  function initMap() {
+    map = L.map('map').setView([restaurantLat, restaurantLng], 15);
+
+    // Add tile layer (OpenStreetMap)
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+    // Custom restaurant marker
+    const restaurantIcon = L.divIcon({
+      className: 'custom-marker',
+      html: `<div style="
+        background: linear-gradient(135deg, #ffbe33, #ff9500);
+        width: 40px;
+        height: 40px;
+        border-radius: 50% 50% 50% 0;
+        transform: rotate(-45deg);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 5px 15px rgba(255, 190, 51, 0.5);
+      ">
+        <i class="fa fa-cutlery" style="transform: rotate(45deg); color: #1a1a2e; font-size: 16px;"></i>
+      </div>`,
+      iconSize: [40, 40],
+      iconAnchor: [20, 40],
+      popupAnchor: [0, -40]
+    });
+
+    // Add restaurant marker
+    L.marker([restaurantLat, restaurantLng], { icon: restaurantIcon })
+      .addTo(map)
+      .bindPopup(`
+        <div style="text-align: center;">
+          <strong style="color: #ff9500;">${restaurantName}</strong><br>
+          <small>123 Food Street, Gourmet Avenue</small><br>
+          <small>Open: 11 AM - 11 PM</small>
+        </div>
+      `)
+      .openPopup();
+  }
+
+  // Get user's current location
+  function getMyLocation() {
+    const btn = document.querySelector('.btn-my-location');
+    btn.innerHTML = '<span class="loading-spinner"></span> Locating...';
+
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        function (position) {
+          userLat = position.coords.latitude;
+          userLng = position.coords.longitude;
+
+          // Remove existing user marker if any
+          if (userMarker) {
+            map.removeLayer(userMarker);
+          }
+
+          // Custom user marker
+          const userIcon = L.divIcon({
+            className: 'user-marker',
+            html: `<div style="
+              background: #4285f4;
+              width: 20px;
+              height: 20px;
+              border-radius: 50%;
+              border: 3px solid #fff;
+              box-shadow: 0 0 10px rgba(66, 133, 244, 0.5);
+            "></div>`,
+            iconSize: [20, 20],
+            iconAnchor: [10, 10]
+          });
+
+          // Add user marker
+          userMarker = L.marker([userLat, userLng], { icon: userIcon })
+            .addTo(map)
+            .bindPopup('<strong>You are here</strong>');
+
+          // Draw route line
+          if (routeLine) {
+            map.removeLayer(routeLine);
+          }
+
+          routeLine = L.polyline([
+            [userLat, userLng],
+            [restaurantLat, restaurantLng]
+          ], {
+            color: '#ffbe33',
+            weight: 4,
+            opacity: 0.8,
+            dashArray: '10, 10'
+          }).addTo(map);
+
+          // Fit map to show both markers
+          const bounds = L.latLngBounds([
+            [userLat, userLng],
+            [restaurantLat, restaurantLng]
+          ]);
+          map.fitBounds(bounds, { padding: [50, 50] });
+
+          // Calculate distance
+          const distance = calculateDistance(userLat, userLng, restaurantLat, restaurantLng);
+          displayDistance(distance);
+
+          btn.innerHTML = '<i class="fa fa-crosshairs"></i> My Location';
+        },
+        function (error) {
+          btn.innerHTML = '<i class="fa fa-crosshairs"></i> My Location';
+          alert('Unable to get your location. Please enable GPS/location services.');
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 0
+        }
+      );
+    } else {
+      btn.innerHTML = '<i class="fa fa-crosshairs"></i> My Location';
+      alert('Geolocation is not supported by your browser.');
+    }
+  }
+
+  // Calculate distance between two points
+  function calculateDistance(lat1, lon1, lat2, lon2) {
+    const R = 6371; // Earth's radius in km
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+      Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
+  }
+
+  // Display distance and estimated time
+  function displayDistance(distance) {
+    const distanceDisplay = document.getElementById('distanceDisplay');
+    const distanceValue = document.getElementById('distanceValue');
+    const travelTime = document.getElementById('travelTime');
+
+    distanceDisplay.classList.add('show');
+
+    if (distance < 1) {
+      distanceValue.textContent = (distance * 1000).toFixed(0) + ' meters';
+    } else {
+      distanceValue.textContent = distance.toFixed(1) + ' km';
+    }
+
+    // Estimate travel time (assuming average speed of 30 km/h in city)
+    const timeInMinutes = (distance / 30) * 60;
+    if (timeInMinutes < 1) {
+      travelTime.textContent = 'Estimated travel time: Less than 1 minute';
+    } else if (timeInMinutes < 60) {
+      travelTime.textContent = `Estimated travel time: ~${Math.round(timeInMinutes)} minutes by car`;
+    } else {
+      const hours = Math.floor(timeInMinutes / 60);
+      const mins = Math.round(timeInMinutes % 60);
+      travelTime.textContent = `Estimated travel time: ~${hours}h ${mins}min by car`;
+    }
+  }
+
+  // Open directions in Google Maps
+  function openDirections() {
+    let url;
+    if (userLat && userLng) {
+      // If user location is known, use it as starting point
+      url = `https://www.google.com/maps/dir/${userLat},${userLng}/${restaurantLat},${restaurantLng}`;
+    } else {
+      // Otherwise, let Google Maps use current location
+      url = `https://www.google.com/maps/dir/?api=1&destination=${restaurantLat},${restaurantLng}`;
+    }
+    window.open(url, '_blank');
+    return false;
+  }
+
+  // Live Tracking Variables
+  let watchId = null;
+  let isTracking = false;
+  let accuracyCircle = null;
+
+  // Toggle Live Tracking
+  function toggleLiveTracking() {
+    const btn = document.getElementById('liveTrackBtn');
+    const status = document.getElementById('liveTrackingStatus');
+
+    if (isTracking) {
+      // Stop tracking
+      if (watchId !== null) {
+        navigator.geolocation.clearWatch(watchId);
+        watchId = null;
+      }
+      isTracking = false;
+      btn.classList.remove('active');
+      btn.innerHTML = '<i class="fa fa-dot-circle-o"></i> <span>Live Track</span>';
+      status.classList.remove('show');
+
+      // Remove accuracy circle if exists
+      if (accuracyCircle) {
+        map.removeLayer(accuracyCircle);
+        accuracyCircle = null;
+      }
+    } else {
+      // Start tracking
+      if (!navigator.geolocation) {
+        alert('Geolocation is not supported by your browser.');
+        return;
+      }
+
+      btn.innerHTML = '<span class="loading-spinner"></span> Starting...';
+
+      watchId = navigator.geolocation.watchPosition(
+        function (position) {
+          userLat = position.coords.latitude;
+          userLng = position.coords.longitude;
+          const accuracy = position.coords.accuracy;
+
+          // Update button state
+          if (!isTracking) {
+            isTracking = true;
+            btn.classList.add('active');
+            btn.innerHTML = '<i class="fa fa-stop-circle"></i> <span>Stop</span>';
+            status.classList.add('show');
+          }
+
+          // Update or create user marker
+          if (userMarker) {
+            userMarker.setLatLng([userLat, userLng]);
+          } else {
+            const userIcon = L.divIcon({
+              className: 'user-marker-live',
+              html: `<div style="
+                position: relative;
+              ">
+                <div style="
+                  background: #4285f4;
+                  width: 20px;
+                  height: 20px;
+                  border-radius: 50%;
+                  border: 3px solid #fff;
+                  box-shadow: 0 0 15px rgba(66, 133, 244, 0.6);
+                  animation: pulse-live 1.5s infinite;
+                "></div>
+              </div>`,
+              iconSize: [20, 20],
+              iconAnchor: [10, 10]
+            });
+
+            userMarker = L.marker([userLat, userLng], { icon: userIcon })
+              .addTo(map)
+              .bindPopup('<strong>Your Live Location</strong>');
+          }
+
+          // Update or create accuracy circle
+          if (accuracyCircle) {
+            accuracyCircle.setLatLng([userLat, userLng]);
+            accuracyCircle.setRadius(accuracy);
+          } else {
+            accuracyCircle = L.circle([userLat, userLng], {
+              radius: accuracy,
+              color: 'rgba(66, 133, 244, 0.3)',
+              fillColor: 'rgba(66, 133, 244, 0.15)',
+              fillOpacity: 0.5,
+              weight: 2
+            }).addTo(map);
+          }
+
+          // Update route line
+          if (routeLine) {
+            map.removeLayer(routeLine);
+          }
+          routeLine = L.polyline([
+            [userLat, userLng],
+            [restaurantLat, restaurantLng]
+          ], {
+            color: '#4CAF50',
+            weight: 4,
+            opacity: 0.8,
+            dashArray: '10, 10'
+          }).addTo(map);
+
+          // Fit map bounds
+          const bounds = L.latLngBounds([
+            [userLat, userLng],
+            [restaurantLat, restaurantLng]
+          ]);
+          map.fitBounds(bounds, { padding: [50, 50] });
+
+          // Update distance
+          const distance = calculateDistance(userLat, userLng, restaurantLat, restaurantLng);
+          displayDistance(distance);
+        },
+        function (error) {
+          isTracking = false;
+          btn.classList.remove('active');
+          btn.innerHTML = '<i class="fa fa-dot-circle-o"></i> <span>Live Track</span>';
+          status.classList.remove('show');
+
+          switch (error.code) {
+            case error.PERMISSION_DENIED:
+              alert('Location permission denied. Please enable location access.');
+              break;
+            case error.POSITION_UNAVAILABLE:
+              alert('Location information unavailable.');
+              break;
+            case error.TIMEOUT:
+              alert('Location request timed out.');
+              break;
+            default:
+              alert('An unknown error occurred.');
+          }
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 0
+        }
+      );
+    }
+  }
+
+  // Add CSS for live marker animation
+  const liveStyle = document.createElement('style');
+  liveStyle.textContent = `
+    @keyframes pulse-live {
+      0%, 100% { 
+        box-shadow: 0 0 0 0 rgba(66, 133, 244, 0.6);
+      }
+      50% { 
+        box-shadow: 0 0 0 15px rgba(66, 133, 244, 0);
+      }
+    }
+  `;
+  document.head.appendChild(liveStyle);
+
+  // Nearby Restaurants Variables
+  let nearbyMarkers = [];
+
+  // Find Nearby Restaurants using Overpass API
+  function findNearbyRestaurants() {
+    const btn = document.getElementById('nearbyBtn');
+    const nearbyContainer = document.getElementById('nearbyRestaurants');
+    const nearbyList = document.getElementById('nearbyList');
+
+    // First get user location if not already obtained
+    if (!userLat || !userLng) {
+      btn.innerHTML = '<span class="loading-spinner"></span> Getting location...';
+      btn.classList.add('loading');
+
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          function (position) {
+            userLat = position.coords.latitude;
+            userLng = position.coords.longitude;
+            searchNearbyRestaurants();
+          },
+          function (error) {
+            btn.innerHTML = '<i class="fa fa-cutlery"></i> Find Nearby Restaurants';
+            btn.classList.remove('loading');
+            alert('Unable to get your location. Please enable GPS first.');
+          },
+          { enableHighAccuracy: true, timeout: 10000 }
+        );
+      } else {
+        btn.innerHTML = '<i class="fa fa-cutlery"></i> Find Nearby Restaurants';
+        btn.classList.remove('loading');
+        alert('Geolocation is not supported by your browser.');
+      }
+      return;
+    }
+
+    searchNearbyRestaurants();
+
+    function searchNearbyRestaurants() {
+      btn.innerHTML = '<span class="loading-spinner"></span> Searching...';
+      btn.classList.add('loading');
+
+      // Clear existing nearby markers
+      nearbyMarkers.forEach(marker => map.removeLayer(marker));
+      nearbyMarkers = [];
+
+      // Overpass API query to find restaurants within 2km radius
+      const radius = 2000; // 2km radius
+      const query = `
+        [out:json][timeout:25];
+        (
+          node["amenity"="restaurant"](around:${radius},${userLat},${userLng});
+          way["amenity"="restaurant"](around:${radius},${userLat},${userLng});
+          node["amenity"="fast_food"](around:${radius},${userLat},${userLng});
+          node["amenity"="cafe"](around:${radius},${userLat},${userLng});
+        );
+        out body center;
+      `;
+
+      const overpassUrl = 'https://overpass-api.de/api/interpreter';
+
+      fetch(overpassUrl, {
+        method: 'POST',
+        body: 'data=' + encodeURIComponent(query),
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded'
+        }
+      })
+        .then(response => response.json())
+        .then(data => {
+          btn.innerHTML = '<i class="fa fa-cutlery"></i> Find Nearby Restaurants';
+          btn.classList.remove('loading');
+
+          if (data.elements && data.elements.length > 0) {
+            nearbyContainer.classList.add('show');
+
+            // Sort by distance
+            const restaurants = data.elements.map(el => {
+              const lat = el.lat || el.center?.lat;
+              const lng = el.lon || el.center?.lon;
+              const dist = calculateDistance(userLat, userLng, lat, lng);
+              return { ...el, lat, lng, distance: dist };
+            }).sort((a, b) => a.distance - b.distance);
+
+            // Build list HTML
+            let listHTML = '';
+            restaurants.slice(0, 15).forEach((restaurant, index) => {
+              const name = restaurant.tags?.name || 'Unnamed Restaurant';
+              const cuisine = restaurant.tags?.cuisine || restaurant.tags?.amenity || 'Restaurant';
+              const distText = restaurant.distance < 1
+                ? (restaurant.distance * 1000).toFixed(0) + 'm'
+                : restaurant.distance.toFixed(1) + 'km';
+
+              listHTML += `
+              <div class="nearby-item" onclick="focusRestaurant(${restaurant.lat}, ${restaurant.lng}, '${name.replace(/'/g, "\\'")}')">
+                <div class="nearby-item-icon">
+                  <i class="fa fa-cutlery"></i>
+                </div>
+                <div class="nearby-item-info">
+                  <h6>${name}</h6>
+                  <p>${cuisine.charAt(0).toUpperCase() + cuisine.slice(1)}</p>
+                </div>
+                <div class="nearby-item-distance">${distText}</div>
+              </div>
+            `;
+
+              // Add marker to map
+              const nearbyIcon = L.divIcon({
+                className: 'nearby-marker',
+                html: `<div style="
+                background: linear-gradient(135deg, #e91e63, #c2185b);
+                width: 30px;
+                height: 30px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                box-shadow: 0 3px 10px rgba(233, 30, 99, 0.5);
+                border: 2px solid #fff;
+              ">
+                <span style="color: #fff; font-weight: bold; font-size: 12px;">${index + 1}</span>
+              </div>`,
+                iconSize: [30, 30],
+                iconAnchor: [15, 15],
+                popupAnchor: [0, -15]
+              });
+
+              const marker = L.marker([restaurant.lat, restaurant.lng], { icon: nearbyIcon })
+                .addTo(map)
+                .bindPopup(`
+                <div style="text-align: center;">
+                  <strong style="color: #e91e63;">${name}</strong><br>
+                  <small>${cuisine}</small><br>
+                  <small style="color: #ffbe33;">${distText} away</small>
+                </div>
+              `);
+              nearbyMarkers.push(marker);
+            });
+
+            nearbyList.innerHTML = listHTML;
+
+            // Update map to show all results
+            if (nearbyMarkers.length > 0) {
+              const allPoints = [[userLat, userLng], ...restaurants.slice(0, 15).map(r => [r.lat, r.lng])];
+              const bounds = L.latLngBounds(allPoints);
+              map.fitBounds(bounds, { padding: [30, 30] });
+            }
+          } else {
+            nearbyContainer.classList.add('show');
+            nearbyList.innerHTML = `
+            <div class="no-results">
+              <i class="fa fa-search"></i>
+              <p>No restaurants found within 2km.<br>Try moving to a different area.</p>
+            </div>
+          `;
+          }
+        })
+        .catch(error => {
+          console.error('Error fetching nearby restaurants:', error);
+          btn.innerHTML = '<i class="fa fa-cutlery"></i> Find Nearby Restaurants';
+          btn.classList.remove('loading');
+          nearbyContainer.classList.add('show');
+          nearbyList.innerHTML = `
+          <div class="no-results">
+            <i class="fa fa-exclamation-circle"></i>
+            <p>Error searching for restaurants.<br>Please try again later.</p>
+          </div>
+        `;
+        });
+    }
+  }
+
+  // Focus on a specific restaurant
+  function focusRestaurant(lat, lng, name) {
+    map.setView([lat, lng], 18);
+    nearbyMarkers.forEach(marker => {
+      const markerLatLng = marker.getLatLng();
+      if (Math.abs(markerLatLng.lat - lat) < 0.0001 && Math.abs(markerLatLng.lng - lng) < 0.0001) {
+        marker.openPopup();
+      }
+    });
+  }
+
+  // Initialize map on page load
+  document.addEventListener('DOMContentLoaded', initMap);
+</script>
 
 {% endblock main %}

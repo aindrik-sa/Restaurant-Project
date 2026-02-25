@@ -1,0 +1,619 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block class %}class="sub_page"{% endblock class %}
+
+{% block main %}
+<style>
+    .profile-section {
+        min-height: 100vh;
+        background: linear-gradient(135deg, #2d1f3d 0%, #1a1a2e 30%, #0d0d0d 60%, #1c1108 100%);
+        padding: 80px 0;
+        position: relative;
+    }
+
+    .profile-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background:
+            radial-gradient(circle at 20% 80%, rgba(255, 190, 51, 0.08) 0%, transparent 40%),
+            radial-gradient(circle at 80% 20%, rgba(255, 120, 50, 0.06) 0%, transparent 40%);
+        pointer-events: none;
+    }
+
+    /* Profile Card */
+    .profile-card {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(10px);
+        border-radius: 25px;
+        padding: 40px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.4s ease;
+    }
+
+    .profile-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 40px rgba(255, 190, 51, 0.2);
+        border-color: rgba(255, 190, 51, 0.3);
+    }
+
+    .profile-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 190, 51, 0.1), transparent);
+        transition: 0.5s;
+    }
+
+    .profile-card:hover::before {
+        left: 100%;
+    }
+
+    .avatar-container {
+        width: 120px;
+        height: 120px;
+        margin: 0 auto 20px;
+        position: relative;
+    }
+
+    .avatar {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #ffbe33, #ff9500);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 48px;
+        color: #1a1a2e;
+        font-weight: bold;
+        text-transform: uppercase;
+        box-shadow: 0 10px 30px rgba(255, 190, 51, 0.4);
+        animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+
+        0%,
+        100% {
+            box-shadow: 0 10px 30px rgba(255, 190, 51, 0.4);
+        }
+
+        50% {
+            box-shadow: 0 10px 50px rgba(255, 190, 51, 0.6);
+        }
+    }
+
+    .avatar-badge {
+        position: absolute;
+        bottom: 5px;
+        right: 5px;
+        width: 25px;
+        height: 25px;
+        background: #4CAF50;
+        border-radius: 50%;
+        border: 3px solid #1a1a2e;
+    }
+
+    .profile-name {
+        color: #fff;
+        font-size: 1.8rem;
+        margin-bottom: 5px;
+    }
+
+    .profile-email {
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 0.95rem;
+        margin-bottom: 20px;
+    }
+
+    .profile-stats {
+        display: flex;
+        justify-content: space-around;
+        margin-top: 25px;
+        padding-top: 25px;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .stat-item {
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+    .stat-item:hover {
+        transform: scale(1.1);
+    }
+
+    .stat-number {
+        font-size: 1.8rem;
+        font-weight: bold;
+        color: #ffbe33;
+        display: block;
+    }
+
+    .stat-label {
+        font-size: 0.85rem;
+        color: rgba(255, 255, 255, 0.5);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    /* Tabs */
+    .profile-tabs {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 30px;
+    }
+
+    .tab-btn {
+        flex: 1;
+        padding: 15px 25px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 15px;
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+    }
+
+    .tab-btn:hover,
+    .tab-btn.active {
+        background: linear-gradient(135deg, #ffbe33, #ff9500);
+        color: #1a1a2e;
+        border-color: transparent;
+        transform: translateY(-3px);
+        box-shadow: 0 10px 25px rgba(255, 190, 51, 0.3);
+    }
+
+    .tab-btn i {
+        font-size: 1.2rem;
+    }
+
+    .tab-content {
+        display: none;
+        animation: fadeIn 0.5s ease;
+    }
+
+    .tab-content.active {
+        display: block;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Order Cards */
+    .order-card {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 20px;
+        padding: 25px;
+        margin-bottom: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        transition: all 0.3s ease;
+    }
+
+    .order-card:hover {
+        background: rgba(255, 255, 255, 0.08);
+        transform: translateX(10px);
+        border-color: rgba(255, 190, 51, 0.3);
+    }
+
+    .order-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+    }
+
+    .order-id {
+        color: #ffbe33;
+        font-size: 1.2rem;
+        font-weight: bold;
+        text-decoration: none;
+        transition: all 0.3s;
+    }
+
+    .order-id:hover {
+        color: #ff9500;
+        text-decoration: none;
+    }
+
+    .order-date {
+        color: rgba(255, 255, 255, 0.5);
+        font-size: 0.9rem;
+    }
+
+    .order-status {
+        padding: 8px 20px;
+        border-radius: 25px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .status-completed {
+        background: rgba(76, 175, 80, 0.2);
+        color: #4CAF50;
+    }
+
+    .status-pending {
+        background: rgba(255, 193, 7, 0.2);
+        color: #FFC107;
+    }
+
+    .status-cancelled {
+        background: rgba(244, 67, 54, 0.2);
+        color: #F44336;
+    }
+
+    .order-items {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-bottom: 15px;
+    }
+
+    .order-item-chip {
+        background: rgba(255, 255, 255, 0.1);
+        padding: 5px 15px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        color: rgba(255, 255, 255, 0.8);
+    }
+
+    .order-total {
+        text-align: right;
+        font-size: 1.3rem;
+        color: #fff;
+        font-weight: bold;
+    }
+
+    /* Wishlist Cards */
+    .wishlist-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 25px;
+    }
+
+    .wishlist-card {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 20px;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        transition: all 0.4s ease;
+        position: relative;
+    }
+
+    .wishlist-card:hover {
+        transform: translateY(-10px) scale(1.02);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        border-color: rgba(255, 190, 51, 0.3);
+    }
+
+    .wishlist-img {
+        width: 100%;
+        height: 180px;
+        object-fit: cover;
+        transition: all 0.4s ease;
+    }
+
+    .wishlist-card:hover .wishlist-img {
+        transform: scale(1.1);
+    }
+
+    .wishlist-img-container {
+        overflow: hidden;
+        position: relative;
+    }
+
+    .wishlist-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(to bottom, transparent 50%, rgba(0, 0, 0, 0.8));
+    }
+
+    .wishlist-remove {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        width: 40px;
+        height: 40px;
+        background: rgba(244, 67, 54, 0.9);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        text-decoration: none;
+        opacity: 0;
+        transform: scale(0.8);
+        transition: all 0.3s;
+    }
+
+    .wishlist-card:hover .wishlist-remove {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    .wishlist-remove:hover {
+        background: #F44336;
+        transform: scale(1.1) rotate(10deg);
+        color: white;
+    }
+
+    .wishlist-body {
+        padding: 20px;
+    }
+
+    .wishlist-name {
+        color: #fff;
+        font-size: 1.1rem;
+        margin-bottom: 10px;
+    }
+
+    .wishlist-price {
+        color: #ffbe33;
+        font-size: 1.3rem;
+        font-weight: bold;
+        margin-bottom: 15px;
+    }
+
+    .wishlist-actions {
+        display: flex;
+        gap: 10px;
+    }
+
+    .btn-view,
+    .btn-cart {
+        flex: 1;
+        padding: 10px 15px;
+        border-radius: 10px;
+        text-align: center;
+        font-size: 0.9rem;
+        text-decoration: none;
+        transition: all 0.3s;
+    }
+
+    .btn-view {
+        background: transparent;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        color: #fff;
+    }
+
+    .btn-view:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: #fff;
+        text-decoration: none;
+    }
+
+    .btn-cart {
+        background: linear-gradient(135deg, #ffbe33, #ff9500);
+        color: #1a1a2e;
+        border: none;
+    }
+
+    .btn-cart:hover {
+        transform: scale(1.05);
+        box-shadow: 0 5px 15px rgba(255, 190, 51, 0.4);
+        color: #1a1a2e;
+        text-decoration: none;
+    }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        color: rgba(255, 255, 255, 0.5);
+    }
+
+    .empty-state i {
+        font-size: 4rem;
+        margin-bottom: 20px;
+        opacity: 0.3;
+    }
+
+    .empty-state h4 {
+        color: rgba(255, 255, 255, 0.7);
+        margin-bottom: 15px;
+    }
+
+    .btn-explore {
+        display: inline-block;
+        padding: 12px 30px;
+        background: linear-gradient(135deg, #ffbe33, #ff9500);
+        color: #1a1a2e;
+        border-radius: 25px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s;
+    }
+
+    .btn-explore:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 25px rgba(255, 190, 51, 0.4);
+        color: #1a1a2e;
+        text-decoration: none;
+    }
+
+    /* Member Badge */
+    .member-since {
+        display: inline-block;
+        padding: 8px 20px;
+        background: rgba(255, 190, 51, 0.1);
+        border: 1px solid rgba(255, 190, 51, 0.3);
+        border-radius: 25px;
+        color: #ffbe33;
+        font-size: 0.85rem;
+        margin-bottom: 15px;
+    }
+
+    .member-since i {
+        margin-right: 5px;
+    }
+</style>
+
+<section class="profile-section">
+    <div class="container">
+        <div class="row">
+            <!-- Profile Card -->
+            <div class="col-lg-4 mb-4">
+                <div class="profile-card">
+                    <div class="avatar-container">
+                        <div class="avatar">{{ user.username|slice:":1" }}</div>
+                        <div class="avatar-badge"></div>
+                    </div>
+                    <h3 class="profile-name">{{ user.username }}</h3>
+                    <p class="profile-email">{{ user.email }}</p>
+                    <span class="member-since">
+                        <i class="fa fa-calendar"></i> Member since {{ user.date_joined|date:"M Y" }}
+                    </span>
+
+                    <div class="profile-stats">
+                        <div class="stat-item" onclick="showTab('orders')">
+                            <span class="stat-number">{{ orders.count }}</span>
+                            <span class="stat-label">Orders</span>
+                        </div>
+                        <div class="stat-item" onclick="showTab('wishlist')">
+                            <span class="stat-number">{{ user.wishlist_set.count }}</span>
+                            <span class="stat-label">Wishlist</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Content Area -->
+            <div class="col-lg-8">
+                <!-- Tabs -->
+                <div class="profile-tabs">
+                    <button class="tab-btn active" onclick="showTab('orders')" id="orders-tab">
+                        <i class="fa fa-shopping-bag"></i> My Orders
+                    </button>
+                    <button class="tab-btn" onclick="showTab('wishlist')" id="wishlist-tab">
+                        <i class="fa fa-heart"></i> Wishlist
+                    </button>
+                </div>
+
+                <!-- Orders Tab -->
+                <div class="tab-content active" id="orders-content">
+                    {% if orders %}
+                    {% for order in orders %}
+                    <div class="order-card">
+                        <div class="order-header">
+                            <div>
+                                <a href="{% url 'order_detail' order.id %}" class="order-id">#{{ order.id }}</a>
+                                <span class="order-date">{{ order.created_at|date:"M d, Y • h:i A" }}</span>
+                            </div>
+                            <span
+                                class="order-status status-{% if order.status == 'Completed' %}completed{% elif order.status == 'Pending' %}pending{% else %}cancelled{% endif %}">
+                                {{ order.status }}
+                            </span>
+                        </div>
+                        <div class="order-items">
+                            {% for item in order.items.all %}
+                            <span class="order-item-chip">{{ item.quantity }}× {{ item.item.Item_name }}</span>
+                            {% endfor %}
+                        </div>
+                        <div class="order-total">${{ order.total_amount }}</div>
+                    </div>
+                    {% endfor %}
+                    {% else %}
+                    <div class="empty-state">
+                        <i class="fa fa-shopping-basket"></i>
+                        <h4>No orders yet</h4>
+                        <p>Looks like you haven't placed any orders.</p>
+                        <a href="{% url 'Menu' %}" class="btn-explore">Explore Menu</a>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Wishlist Tab -->
+                <div class="tab-content" id="wishlist-content">
+                    {% if user.wishlist_set.all %}
+                    <div class="wishlist-grid">
+                        {% for wishItem in user.wishlist_set.all %}
+                        <div class="wishlist-card">
+                            <div class="wishlist-img-container">
+                                <img src="{{ wishItem.item.Image.url }}" class="wishlist-img"
+                                    alt="{{ wishItem.item.Item_name }}">
+                                <div class="wishlist-overlay"></div>
+                                <a href="{% url 'toggle_wishlist' wishItem.item.id %}" class="wishlist-remove">
+                                    <i class="fa fa-trash"></i>
+                                </a>
+                            </div>
+                            <div class="wishlist-body">
+                                <h5 class="wishlist-name">{{ wishItem.item.Item_name }}</h5>
+                                <p class="wishlist-price">${{ wishItem.item.Price }}</p>
+                                <div class="wishlist-actions">
+                                    <a href="{% url 'item_detail' wishItem.item.id %}" class="btn-view">View</a>
+                                    <a href="javascript:void(0)" class="btn-cart ajax-add-cart"
+                                        data-item-id="{{ wishItem.item.id }}">
+                                        <i class="fa fa-cart-plus"></i> Add
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="empty-state">
+                        <i class="fa fa-heart-o"></i>
+                        <h4>Wishlist is empty</h4>
+                        <p>Save items you love for later!</p>
+                        <a href="{% url 'Menu' %}" class="btn-explore">Browse Items</a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+    function showTab(tabName) {
+        // Hide all content
+        document.querySelectorAll('.tab-content').forEach(content => {
+            content.classList.remove('active');
+        });
+        // Remove active from all tabs
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        // Show selected content
+        document.getElementById(tabName + '-content').classList.add('active');
+        document.getElementById(tabName + '-tab').classList.add('active');
+    }
+
+    // Check URL hash for direct wishlist link
+    if (window.location.hash === '#wishlist') {
+        showTab('wishlist');
+    }
+</script>
+{% endblock main %}

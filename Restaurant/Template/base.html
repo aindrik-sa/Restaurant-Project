@@ -35,7 +35,198 @@
 
 </head>
 
+
 <body {% block class %}{% endblock class %}>
+
+  <!-- Enhanced Navbar Styles -->
+  <style>
+    /* Navbar Container */
+    .header_section {
+      background: linear-gradient(135deg, rgba(20, 20, 30, 0.95) 0%, rgba(30, 25, 35, 0.9) 100%);
+      backdrop-filter: blur(15px);
+      border-bottom: 1px solid rgba(255, 190, 51, 0.2);
+      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+      position: relative;
+      z-index: 1000;
+    }
+
+    .header_section::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255, 190, 51, 0.5), transparent);
+    }
+
+    /* Logo Styling */
+    .navbar-brand span {
+      font-size: 1.8rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #ffbe33, #ff9500, #ffbe33);
+      background-size: 200% auto;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: shimmer 3s ease-in-out infinite;
+      text-shadow: none;
+      letter-spacing: 2px;
+    }
+
+    @keyframes shimmer {
+
+      0%,
+      100% {
+        background-position: 0% center;
+      }
+
+      50% {
+        background-position: 200% center;
+      }
+    }
+
+    .navbar-brand:hover span {
+      animation: shimmer 1s ease-in-out infinite;
+    }
+
+    /* Nav Links */
+    .custom_nav-container .navbar-nav .nav-link {
+      color: rgba(255, 255, 255, 0.85) !important;
+      font-weight: 500;
+      font-size: 0.95rem;
+      padding: 10px 18px !important;
+      margin: 0 3px;
+      position: relative;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .custom_nav-container .navbar-nav .nav-link::before {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      width: 0;
+      height: 2px;
+      background: linear-gradient(90deg, #ffbe33, #ff9500);
+      transition: all 0.3s ease;
+      transform: translateX(-50%);
+      border-radius: 2px;
+    }
+
+    .custom_nav-container .navbar-nav .nav-link:hover {
+      color: #ffbe33 !important;
+      text-shadow: 0 0 20px rgba(255, 190, 51, 0.5);
+    }
+
+    .custom_nav-container .navbar-nav .nav-link:hover::before {
+      width: 70%;
+    }
+
+    .custom_nav-container .navbar-nav .nav-item.active .nav-link {
+      color: #ffbe33 !important;
+    }
+
+    /* User Options */
+    .user_option {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .user_option .navbar-text {
+      background: rgba(255, 190, 51, 0.1);
+      padding: 8px 16px !important;
+      border-radius: 20px;
+      border: 1px solid rgba(255, 190, 51, 0.3);
+      font-size: 0.9rem;
+      transition: all 0.3s ease;
+    }
+
+    .user_option .navbar-text:hover {
+      background: rgba(255, 190, 51, 0.2);
+      border-color: rgba(255, 190, 51, 0.5);
+      transform: translateY(-2px);
+    }
+
+    .user_option .user_link {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      border-radius: 20px;
+      color: #fff !important;
+      font-size: 0.85rem;
+      transition: all 0.3s ease;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .user_option .user_link:hover {
+      background: rgba(255, 71, 87, 0.2);
+      border-color: rgba(255, 71, 87, 0.4);
+      color: #ff4757 !important;
+      transform: translateY(-2px);
+    }
+
+    /* Cart Icon */
+    .cart_link {
+      position: relative;
+      padding: 10px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.05);
+      transition: all 0.3s ease;
+      margin-left: 5px;
+    }
+
+    .cart_link:hover {
+      background: rgba(255, 190, 51, 0.15);
+      transform: scale(1.1);
+    }
+
+    .cart_link svg {
+      width: 22px;
+      transition: all 0.3s ease;
+    }
+
+    .cart_link:hover svg {
+      fill: #ffbe33;
+    }
+
+    /* Wishlist Icon Enhancement */
+    .wishlist_link {
+      padding: 10px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.05);
+      transition: all 0.3s ease !important;
+      display: flex !important;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .wishlist_link:hover {
+      background: rgba(255, 71, 87, 0.15);
+      transform: scale(1.1);
+    }
+
+    /* Mobile Menu Toggle */
+    .navbar-toggler {
+      border: 1px solid rgba(255, 190, 51, 0.5) !important;
+      padding: 8px 12px;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+    }
+
+    .navbar-toggler:hover {
+      background: rgba(255, 190, 51, 0.1);
+    }
+
+    .navbar-toggler span {
+      background: #ffbe33;
+    }
+  </style>
 
   <div class="hero_area">
     <div class="bg-box">
@@ -58,28 +249,54 @@
 
           <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav mx-auto">
-              <li class="nav-item active">
+              <li class="nav-item {% if request.resolver_match.url_name == 'Home' %}active{% endif %}">
                 <a class="nav-link" href="{% url 'Home' %}">Home</a>
               </li>
-              <li class="nav-item">
+              <li
+                class="nav-item {% if request.resolver_match.url_name == 'Menu' or request.resolver_match.url_name == 'item_detail' %}active{% endif %}">
                 <a class="nav-link" href="{% url 'Menu' %}">Menu</a>
               </li>
-              <li class="nav-item">
+              <li class="nav-item {% if request.resolver_match.url_name == 'About' %}active{% endif %}">
                 <a class="nav-link" href="{% url 'About' %}">About</a>
               </li>
-              <li class="nav-item">
-                <a class="nav-link" href="{% url 'Book_table' %}">Book Table</a>
+              <li class="nav-item {% if request.resolver_match.url_name == 'Book_table' %}active{% endif %}">
+                <a class="nav-link" href="{% url 'Book_table' %}"> BookTable</a>
               </li>
-              <li class="nav-item">
+              <li class="nav-item {% if request.resolver_match.url_name == 'Feedback' %}active{% endif %}">
                 <a class="nav-link" href="{% url 'Feedback' %}">Feedback</a>
               </li>
             </ul>
             <div class="user_option">
-              {% comment "" %}
-              <a href="" class="user_link">
-                <i class="fa fa-user" aria-hidden="true"></i>
+
+              {% if user.is_authenticated %}
+              <a href="{% url 'profile' %}" class="navbar-text mr-3 text-white" style="text-decoration: none;">
+                Hello, {{ user.username }}
               </a>
-              <a class="cart_link" href="#">
+              <a href="{% url 'logout' %}" class="user_link">
+                <i class="fa fa-sign-out" aria-hidden="true"></i> Logout
+              </a>
+              <!-- Wishlist Icon -->
+              <a href="{% url 'profile' %}#wishlist" class="wishlist_link" title="My Wishlist"
+                style="margin-left: 15px; margin-right: 10px; position: relative;">
+                <i class="fa fa-heart" style="font-size: 22px; color: #fff; transition: all 0.3s;"></i>
+              </a>
+              <style>
+                .wishlist_link:hover i {
+                  color: #ff4757 !important;
+                  transform: scale(1.2);
+                  text-shadow: 0 0 15px rgba(255, 71, 87, 0.6);
+                }
+
+                .wishlist_link i {
+                  display: inline-block;
+                }
+              </style>
+              {% else %}
+              <a href="{% url 'login' %}" class="user_link" style="display: flex; align-items: center;">
+                <i class="fa fa-user" aria-hidden="true" style="margin-right: 9px;"></i>Login
+              </a>
+              {% endif %}
+              <a class="cart_link" href="{% url 'Cart' %}">
                 <svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg"
                   xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 456.029 456.029"
                   style="enable-background:new 0 0 456.029 456.029;" xml:space="preserve">
@@ -123,7 +340,6 @@
                   </g>
                   <g>
                   </g>
-                  <g>
                   </g>
                   <g>
                   </g>
@@ -135,15 +351,113 @@
                   </g>
                 </svg>
               </a>
-              <form class="form-inline">
-                <button class="btn  my-2 my-sm-0 nav_search-btn" type="submit">
-                  <i class="fa fa-search" aria-hidden="true"></i>
-                </button>
+              <form class="form-inline nav_search-form search-box" action="{% url 'Menu' %}" method="GET">
+                <div class="search-wrapper">
+                  <i class="fa fa-search search-icon"></i>
+                  <input type="text" name="q" class="search-field" placeholder="Search..."
+                    value="{{ request.GET.q|default:'' }}">
+                  <button type="submit" class="search-submit">
+                    <i class="fa fa-arrow-right"></i>
+                  </button>
+                </div>
               </form>
-              {% endcomment %}
-              <a href="/admin" class="order_online">
-                Admin login
-              </a>
+
+              <style>
+                .search-box {
+                  margin-left: 15px;
+                }
+
+                .search-wrapper {
+                  position: relative;
+                  display: flex;
+                  align-items: center;
+                  background: rgba(255, 255, 255, 0.1);
+                  border-radius: 25px;
+                  padding: 0;
+                  transition: all 0.4s ease;
+                  border: 1px solid transparent;
+                  overflow: hidden;
+                  width: 42px;
+                  height: 42px;
+                }
+
+                .search-box:hover .search-wrapper,
+                .search-wrapper:focus-within {
+                  width: 220px;
+                  background: rgba(255, 255, 255, 0.15);
+                  border-color: rgba(255, 190, 51, 0.5);
+                  box-shadow: 0 0 20px rgba(255, 190, 51, 0.3);
+                }
+
+                .search-icon {
+                  position: absolute;
+                  left: 14px;
+                  color: #ffbe33;
+                  font-size: 14px;
+                  transition: all 0.3s;
+                  z-index: 2;
+                }
+
+                .search-wrapper:focus-within .search-icon {
+                  color: #fff;
+                }
+
+                .search-field {
+                  flex: 1;
+                  border: none;
+                  background: transparent;
+                  padding: 10px 40px 10px 40px;
+                  color: #fff;
+                  font-size: 14px;
+                  outline: none;
+                  width: 0;
+                  opacity: 0;
+                  transition: all 0.4s ease;
+                }
+
+                .search-box:hover .search-field,
+                .search-wrapper:focus-within .search-field {
+                  width: 100%;
+                  opacity: 1;
+                }
+
+                .search-field::placeholder {
+                  color: rgba(255, 255, 255, 0.6);
+                }
+
+                .search-submit {
+                  position: absolute;
+                  right: 5px;
+                  width: 32px;
+                  height: 32px;
+                  border: none;
+                  background: linear-gradient(135deg, #ffbe33, #ff9500);
+                  border-radius: 50%;
+                  color: #222;
+                  cursor: pointer;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  opacity: 0;
+                  transform: scale(0.8);
+                  transition: all 0.3s ease;
+                }
+
+                .search-box:hover .search-submit,
+                .search-wrapper:focus-within .search-submit {
+                  opacity: 1;
+                  transform: scale(1);
+                }
+
+                .search-submit:hover {
+                  transform: scale(1.1);
+                  box-shadow: 0 3px 10px rgba(255, 190, 51, 0.5);
+                }
+
+                .search-submit i {
+                  font-size: 12px;
+                }
+              </style>
             </div>
           </div>
         </nav>
@@ -259,6 +573,8 @@
   <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCh39n5U-4IoWpsVGUHWdqB6puEkhRLdmI&callback=myMap">
   </script>
   <!-- End Google Map -->
+  <!-- AJAX Cart/Wishlist -->
+  <script src="{% static 'js/ajax_cart.js' %}"></script>
 
 </body>
 

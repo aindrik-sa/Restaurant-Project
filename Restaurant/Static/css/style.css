@@ -171,24 +171,87 @@ a:focus {
   text-align: center;
   text-transform: uppercase;
   border-radius: 5px;
-  -webkit-transition: all 0.3s;
-  transition: all 0.3s;
+  position: relative;
+  transition: color 0.3s;
 }
 
-.custom_nav-container .navbar-nav .nav-item:hover .nav-link, .custom_nav-container .navbar-nav .nav-item.active .nav-link {
+.custom_nav-container .navbar-nav .nav-item .nav-link::after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 2px;
+  bottom: 0;
+  left: 0;
+  background-color: #ffbe33;
+  transform: scaleX(0);
+  transform-origin: bottom right;
+  transition: transform 0.3s ease-out;
+}
+
+.custom_nav-container .navbar-nav .nav-item:hover .nav-link::after, 
+.custom_nav-container .navbar-nav .nav-item.active .nav-link::after {
+  transform: scaleX(1);
+  transform-origin: bottom left;
+}
+
+.custom_nav-container .navbar-nav .nav-item:hover .nav-link, 
+.custom_nav-container .navbar-nav .nav-item.active .nav-link {
   color: #ffbe33;
+}
+
+/* Glassmorphism Search Bar */
+.nav_search-form {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(5px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 30px;
+  padding: 2px 10px;
+  margin-left: 15px;
+  transition: all 0.4s ease;
+  width: 200px; /* Initial width */
+}
+
+.nav_search-form:focus-within {
+  background: #ffffff;
+  width: 280px; /* Expanded width */
+  box-shadow: 0 0 15px rgba(255, 190, 51, 0.5);
+}
+
+.nav_search-form .form-control {
+  background: transparent;
+  border: none;
+  color: #ffffff;
+  box-shadow: none;
+  width: 100%;
+  padding-left: 10px;
+}
+
+.nav_search-form .form-control::placeholder {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.nav_search-form:focus-within .form-control {
+  color: #333333;
+}
+
+.nav_search-form:focus-within .form-control::placeholder {
+  color: #999;
 }
 
 .custom_nav-container .nav_search-btn {
   width: auto;
   height: auto;
-  padding: 0;
+  padding: 5px;
   border: none;
   color: #ffffff;
-  margin: 0 10px;
+  background: transparent;
+  transition: color 0.3s;
 }
 
-.custom_nav-container .nav_search-btn:hover {
+.nav_search-form:focus-within .nav_search-btn {
   color: #ffbe33;
 }
 
